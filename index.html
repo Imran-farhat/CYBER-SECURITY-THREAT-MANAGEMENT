@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threat Analysis Tool</title>
+    <style>
+        body {
+            font-family:cursive;
+            margin: 0;
+            padding: 20px;
+            justify-content: center;
+            background-color:lightgray;
+
+        }
+        h1 {
+            color: #333;
+            font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+            background: linear-gradient(to right, #56fa40, #1E90FF,red,gold);
+            -webkit-background-clip: text;
+            color: transparent;     
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 200px;
+            margin-right: 10px;
+            border-radius: 30px;
+        }
+        input[type="submit"] {
+            padding: 10px 15px;
+            background-color: #5cb85c;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 100px;
+
+            
+        }
+        .result {
+            font-family:Georgia, 'Times New Roman', Times, serif;
+            margin-top: 20px;
+            padding: 60px;
+            background-color: #fff;
+            border-radius: 5px;
+            border: 1px solid #070606;
+            box-shadow: 5% black;
+        
+        }
+        input[type="submit"]:hover{
+            color: #333;
+            background-color: #48e048;
+        }
+
+    </style>
+</head>
+<body>
+<center>
+<h1>Threat Analyze Tool</h1>
+</center>
+<form id="threatForm">
+    <input type="text" id="threatType" placeholder="Enter Threat Type" required>
+    <input type="submit" value="Analyze">
+</form>
+
+<div class="result" id="result"></div>
+
+<script>
+document.getElementById('threatForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    
+    const threatType = document.getElementById('threatType').value;
+
+    fetch('/detectThreat', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `type=${encodeURIComponent(threatType)}`
+    })
+    .then(response => response.json())
+    .then(data => {
+       const resultDiv = document.getElementById('result');
+       
+       if (data.error) {
+           resultDiv.innerHTML = `<strong>Error:</strong> ${data.error}`;
+           return;
+       }
+
+       resultDiv.innerHTML = `
+           <strong>Threat Type:</strong> ${data.threat_type}<br>
+           <strong>Severity:</strong> ${data.severity}<br>
+           <strong>Likelihood:</strong> ${data.likelihood}<br>
+           <strong>Description:</strong> ${data.description}<br>
+           <strong>Mitigation Strategies:</strong><ul>${data.mitigation.map(m => `<li>${m}</li>`).join('')}</ul>`;
+   })
+   .catch(error => console.error('Error:', error));
+});
+</script>
+
+</body>
+</html>
